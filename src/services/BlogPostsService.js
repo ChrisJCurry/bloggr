@@ -24,6 +24,7 @@ class BlogPostsService {
   async getCommentsByPostId(postId) {
     try {
       const res = await api.get('api/blogs/' + postId + '/comments')
+      logger.log(res.data)
       AppState.comments = res.data
     } catch (err) {
       logger.log(err)
@@ -69,10 +70,25 @@ class BlogPostsService {
     if (!postData || !newComment) {
       return
     }
-    logger.log(postData._id, newComment)
+    await api.get('api/blogs/' + postData._id + '/comments')
+    // logger.log(postData._id, newComment)
     try {
-      const res = await api.post('/api/blogs/' + postData._id + '/comments/', newComment)
-      logger.log(res)
+      const res = await api.post('api/blogs/' + postData._id + '/comments', newComment)
+      AppState.comments.push(res.data)
+      logger.log(res.data)
+    } catch (err) {
+      logger.error(err)
+    }
+  }
+
+  async deletePost(id) {
+    const res = window.confirm('are you sure you want to delete your post?')
+    if (!res) {
+      return
+    }
+    try {
+      await api.delete('/api/blogs/' + id)
+      this.getAllPublicPosts()
     } catch (err) {
       logger.error(err)
     }

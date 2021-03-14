@@ -12,6 +12,24 @@ class BlogPostsService {
     }
   }
 
+  async getPostById(postId) {
+    try {
+      const res = await api.get('api/blogs/' + postId)
+      AppState.activeBlog = res.data
+    } catch (err) {
+      logger.error(err)
+    }
+  }
+
+  async getCommentsByPostId(postId) {
+    try {
+      const res = await api.get('api/blogs/' + postId + '/comments')
+      AppState.comments = res.data
+    } catch (err) {
+      logger.log(err)
+    }
+  }
+
   getPostDate(id) {
     const currentPost = AppState.blogPosts.find(b => b.id === id)
     if (currentPost) {
@@ -27,6 +45,37 @@ class BlogPostsService {
     }
 
     return 0
+  }
+
+  async createPost(postData) {
+    try {
+      const res = await api.post('api/blogs', postData)
+      AppState.blogPosts.push(res.data)
+      return res.data._id
+    } catch (err) {
+      logger.error(err)
+    }
+  }
+
+  async editBlog(postData) {
+    try {
+      await api.put('api/blogs/' + postData._id, postData)
+    } catch (err) {
+      logger.error(err)
+    }
+  }
+
+  async postComment(postData, newComment) {
+    if (!postData || !newComment) {
+      return
+    }
+    logger.log(postData._id, newComment)
+    try {
+      const res = await api.post('/api/blogs/' + postData._id + '/comments/', newComment)
+      logger.log(res)
+    } catch (err) {
+      logger.error(err)
+    }
   }
 
   fixLowNumber(n) {

@@ -12,10 +12,10 @@
     <div v-if="state.showEdit">
       <div class="row">
         <div class="col d-flex justify-content-center">
-          <form class="form-inline" @submit.prevent="editBlog">
+          <form @submit.prevent="editBlog">
             <div class="form-group">
               <div class="row">
-                <div class="col-6 col-sm-3 offset-sm-1 offset-md-3">
+                <div class="col-6 col-sm-3 offset-sm-3">
                   <input type="text"
                          name="title"
                          id="title"
@@ -35,10 +35,10 @@
                          v-model="state.blog.imgUrl"
                   >
                 </div>
-                <div class="col-12 col-md-6 offset-sm-1 offset-md-3">
+                <div class="col-12 col-sm-6 offset-sm-3">
                   <textarea type="text"
                             name="body"
-                            rows="4"
+                            rows="7"
                             cols="55"
                             id="body"
                             class="form-control my-2"
@@ -104,10 +104,17 @@
             </div>
           </div>
           <div v-for="comment in state.comments" :key="comment._id">
-            <div class="row pl-3">
-              <div class="col-12">
+            <div class="row ml-3 mr-3 border border-muted mb-1 comment">
+              <div class="col-9">
                 <p><span class="font-weight-bold">{{ comment.creator.name }}</span> <span class="ml-3">{{ comment.body }}</span></p>
               </div>
+              <div class="col-3 text-right" v-if="comment.creator.email == state.user.email">
+                <span><i class="gg-pen ml-5 pl-2 icon" @click="getActiveComment(comment._id)"></i></span><span class="text-danger"><button class="btn btn-danger btn-sm" @click="deleteComment(comment._id)">x</button></span>
+              </div>
+              <span v-if="comment == state.activeComment && (comment.creator.email == state.user.email)">
+                <input type="text" :id="comment._id" :value="comment.body" class="ml-3">
+                <button class="btn btn-secondary btn-sm ml-3" @click="editComment(comment._id)">Edit</button>
+              </span>
             </div>
           </div>
         </div>
@@ -121,7 +128,6 @@ import { computed, onMounted, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { AppState } from '../AppState'
 import { blogPostsService } from '../services/BlogPostsService'
-import { logger } from '../utils/Logger'
 
 export default {
   name: 'BlogPage',
@@ -130,8 +136,11 @@ export default {
     const state = reactive({
       blog: computed(() => AppState.activeBlog),
       user: computed(() => AppState.user),
+      account: computed(() => AppState.account),
       comments: computed(() => AppState.comments),
-      showEdit: false
+      showEdit: false,
+      showCommentEdit: false,
+      activeComment: {}
     })
     onMounted(() => {
       blogPostsService.getPostById(route.params.id)
@@ -140,19 +149,41 @@ export default {
     return {
       state,
       route,
+      editCommentInput: '',
       async editBlog() {
-        logger.log(state.blog)
         await blogPostsService.editBlog(state.blog)
+        state.showEdit = false
       },
       async postComment(event) {
         const form = event.target
-        logger.log(form.blogComment.value, state.user)
         const newComment = {
           body: form.blogComment.value,
           blog: state.blog._id,
-          creator: state.user
+          creatorId: state.account.id,
+          creator: state.account
         }
-        await blogPostsService.postComment(state.blog, newComment)
+        const res = await blogPostsService.postComment(state.blog, newComment)
+        form.blogComment.value = ''
+        const domBody = document.body
+        window.scrollBy(0, domBody.scrollHeight)
+        return res
+      },
+      async editComment(commentId) {
+        const currComment = document.getElementById(commentId).value
+        const editedComment = {
+          body: currComment,
+          blog: state.blog._id,
+          creatorId: state.account.id,
+          creator: state.account
+        }
+        await blogPostsService.editComment(commentId, editedComment)
+      },
+      async deleteComment(commentId) {
+        await blogPostsService.deleteComment(commentId, state.blog._id)
+      },
+      getActiveComment(commentId) {
+        state.showCommentEdit = !state.showCommentEdit
+        state.activeComment = AppState.comments.find(c => c._id === commentId)
       }
     }
   }

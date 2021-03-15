@@ -1,6 +1,10 @@
 <template>
-  <div class="about">
-    <h1>This is the about page</h1>
+  <div class="about container-fluid">
+    <div class="row">
+      <div class="col text-center">
+        <h1>This is a page for blogs about stuff.</h1>
+      </div>
+    </div>
   </div>
 </template>
 

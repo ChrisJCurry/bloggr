@@ -47,6 +47,25 @@ input[type="text"] {
   outline: none;
 }
 
+.icon {
+  position: relative;
+  top: 15px;
+  left: 5px;
+}
+
+.icon:hover {
+  transform: scaleY(1.5);
+}
+
+.border-muted {
+  border-color: $primary-muted!important;
+}
+
+.comment {
+  vertical-align: middle;
+  line-height: normal;
+}
+
 // *{
 //   border: 1px solid red;
 // }

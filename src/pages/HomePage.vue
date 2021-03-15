@@ -1,6 +1,6 @@
 <template>
   <div class="home container">
-    <div class="row m-3" v-if="state.user">
+    <div class="row m-3" v-if="state.user.isAuthenticated">
       <div class="col text-center">
         <button type="button" class="btn btn-primary font-weight-bold" data-toggle="modal" data-target="#create-post">
           Create Post

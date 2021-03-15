@@ -12,6 +12,16 @@ class BlogPostsService {
     }
   }
 
+  async getUsersBlogs(userId) {
+    const usersBlogs = []
+    for (let i = 0; i < AppState.blogPosts.length; i++) {
+      if (AppState.blogPosts[i].creatorId === userId) {
+        usersBlogs.push(AppState.blogPosts[i])
+      }
+    }
+    return usersBlogs
+  }
+
   async getPostById(postId) {
     try {
       const res = await api.get('api/blogs/' + postId)
@@ -24,7 +34,6 @@ class BlogPostsService {
   async getCommentsByPostId(postId) {
     try {
       const res = await api.get('api/blogs/' + postId + '/comments')
-      logger.log(res.data)
       AppState.comments = res.data
     } catch (err) {
       logger.log(err)
@@ -70,25 +79,58 @@ class BlogPostsService {
     if (!postData || !newComment) {
       return
     }
-    await api.get('api/blogs/' + postData._id + '/comments')
-    // logger.log(postData._id, newComment)
     try {
-      const res = await api.post('api/blogs/' + postData._id + '/comments', newComment)
+      const res = await api.post('api/comments', newComment)
       AppState.comments.push(res.data)
-      logger.log(res.data)
+      return res.data._id
     } catch (err) {
       logger.error(err)
     }
   }
 
-  async deletePost(id) {
+  async editComment(commentId, edit) {
+    if (!commentId) {
+      return
+    }
+
+    try {
+      await api.put('api/comments/' + commentId, edit)
+      this.getCommentsByPostId(edit.blog)
+    } catch (err) {
+      logger.error(err)
+    }
+  }
+
+  async deletePost(id, routePath) {
     const res = window.confirm('are you sure you want to delete your post?')
     if (!res) {
       return
     }
     try {
       await api.delete('/api/blogs/' + id)
-      this.getAllPublicPosts()
+      if (routePath === '/') {
+        this.getAllPublicPosts()
+      } else if (routePath === '/account') {
+        for (let i = 0; i < AppState.usersPersonalBlogs.length; i++) {
+          if (AppState.usersPersonalBlogs[i]._id === id) {
+            AppState.usersPersonalBlogs.splice(i, 1)
+          }
+        }
+        this.getUsersBlogs(id)
+      }
+    } catch (err) {
+      logger.error(err)
+    }
+  }
+
+  async deleteComment(id, parentBlogId) {
+    const res = window.confirm('are you sure you want to delete your comment?')
+    if (!res) {
+      return
+    }
+    try {
+      await api.delete('api/comments/' + id)
+      this.getCommentsByPostId(parentBlogId)
     } catch (err) {
       logger.error(err)
     }

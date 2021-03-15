@@ -62,9 +62,6 @@
             <button type="button" class="btn btn-secondary" data-dismiss="modal">
               Close
             </button>
-            <button class="btn btn-info" @click="createPost">
-              Draft
-            </button>
             <button class="btn btn-success" @click="createPost">
               Post
             </button>
@@ -92,9 +89,13 @@ export default ({
       async createPost() {
         try {
           state.newPost.published = true
+          if (!state.newPost.imgUrl) {
+            state.newPost.imgUrl = 'https://static.miraheze.org/thefinalrumblewiki/2/29/Runescape_bot.png'
+          }
           await blogPostsService.createPost(state.newPost)
           state.newPost = {}
-          $('#createPostModal').modal('hide')
+          $('#create-post').modal('hide')
+          $('.modal-backdrop').remove()
         } catch (err) {
           logger.error(err)
         }

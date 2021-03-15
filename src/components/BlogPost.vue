@@ -40,7 +40,7 @@
       <p><span class="font-weight-bold">{{ blogPost.creator.name }}</span> <span class="ml-4">{{ blogPost.body }}</span></p>
     </div>
     <div class="col-12 pt-0" v-else>
-      <span class="font-weight-bold">No Creator ID</span> <span class="ml-4">{{ blogPost.body }}</span>
+      <span class="font-weight-bold">Guest</span> <span class="ml-4">{{ blogPost.body }}</span>
     </div>
     <div class="ml-3">
       <p></p>

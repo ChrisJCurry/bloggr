@@ -92,7 +92,7 @@
             <div class="col-12">
               <form class="form-inline justify-content-between" v-if="state.user.isAuthenticated" @submit.prevent="postComment">
                 <input type="text" name="blogComment" id="blog-comment" class="w-75 bg-pm comment-input rounded" placeholder="Enter comment here...">
-                <button type="submit" class="btn btn-dark ml-3">
+                <button type="submit" class="btn btn-dark ml-1 ml-md-3">
                   Post
                 </button>
               </form>
@@ -109,11 +109,11 @@
                 <p><span class="font-weight-bold">{{ comment.creator.name }}</span> <span class="ml-3">{{ comment.body }}</span></p>
               </div>
               <div class="col-3 text-right" v-if="comment.creator.email == state.user.email">
-                <span><i class="gg-pen ml-5 pl-2 icon" @click="getActiveComment(comment._id)"></i></span><span class="text-danger"><button class="btn btn-danger btn-sm" @click="deleteComment(comment._id)">x</button></span>
+                <span><i class="gg-pen ml-1 ml-md-5 pl-2 icon" @click="getActiveComment(comment._id)"></i></span><span class="text-danger"><button class="btn btn-danger btn-sm ml-4 ml-md-0" @click="deleteComment(comment._id)">x</button></span>
               </div>
               <span v-if="comment == state.activeComment && (comment.creator.email == state.user.email)">
                 <input type="text" :id="comment._id" :value="comment.body" class="ml-3">
-                <button class="btn btn-secondary btn-sm ml-3" @click="editComment(comment._id)">Edit</button>
+                <button class="btn btn-secondary btn-sm" @click="editComment(comment._id)">Edit</button>
               </span>
             </div>
           </div>
